@@ -11,7 +11,7 @@ random_row = random.choice(data_dict)  # Select ONE row at random
 
 
 def get_random_kanji():
-    global random_row, timer_id
+    global random_row, timer_id, wrong_button
     window.after_cancel(timer_id)
     random_row = random.choice(data_dict)
     kanji = random_row["Kanji"]
@@ -27,6 +27,8 @@ def get_random_kanji():
         canvas.itemconfig(word_id, text=f"{kanji}\n{onyomi}")  # Display both together
     timer_id = window.after(3000, show_english)
 
+
+
 def show_english():
     global random_row, timer_id
     english = random_row["English"]
@@ -37,6 +39,36 @@ def show_english():
     canvas.itemconfig(canvas_id, image=card_back)
     canvas.itemconfig(card_title,fill="white")
     canvas.itemconfig(word_id, fill="white")
+
+def study_word():
+    global random_row
+    #if wrong_button:
+    df = pandas.DataFrame([random_row])
+    print(df)
+    df.to_csv("words_to_learn.csv",mode="a", index=False, header=False)
+    # try:
+    #     with open("words_to_learn.csv", "r") as file:
+    #         check_header = file.read() == ""
+    #         print(f"the header is {check_header}")
+    # except:
+    #     check_header = False
+    #     print(f"the header is {check_header}")
+    # df.to_csv("words_to_learn.csv", index=False, mode="a", header = not check_header)
+    get_random_kanji()
+
+
+def known_word():
+    global random_row, data
+    df = pandas.DataFrame([random_row])
+    df.to_csv("words_known.csv",mode="a", index=False, header=False)
+    print(random_row["Kanji"])
+    data_list = data.to_dict(orient="records")
+
+    if random_row in data_list:
+        data_list.remove(random_row)
+    pandas.DataFrame(data_list).to_csv(path="japanese.csv",mode="w", index=False, header="Kanji,Onyomi,English")
+    get_random_kanji()
+
 
 window = Tk()
 window.title("Flash Cards App")
@@ -56,12 +88,19 @@ wrong = PhotoImage(file="images/wrong.png")
 wrong_button = Button(image=wrong, highlightthickness=0, command=get_random_kanji)
 wrong_button.grid(column=0, row=1)
 wrong_button.grid(row=1, column=0)
+wrong_button.config(command=study_word)
 
 right = PhotoImage(file="images/right.png")
 right_button = Button(image=right, highlightthickness=0, command=get_random_kanji)
 right_button.grid(row=1, column=1)
+right_button.config(command=known_word)
+
 
 card_back = PhotoImage(file="images/card_back.png")
 
+# if wrong_button:
+#     df = pandas.DataFrame([random_row])
+#     print(df)
+#     df.to_csv("words_to_learn.csv", mode="a", index=False, header=False)
 
 window.mainloop()
