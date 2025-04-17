@@ -5,13 +5,13 @@ import time
 
 BACKGROUND_COLOR = "#B1DDC6"
 try:
-    with open("data/words_to_learn.csv", "r") as file:
+    with open("data/words_to_learn.csv", "r", encoding="utf-8") as file:
         data = pandas.read_csv(file)
 except FileNotFoundError:
-    data=pandas.read_csv("data/japanese.csv")
+    data=pandas.read_csv("data/japanese.csv", encoding="utf-8")
 data_dict = data.to_dict(orient="records")
 random_row = random.choice(data_dict)  # Select ONE row at random
-pandas.DataFrame(data_dict).to_csv("data/words_to_learn.csv",index=False)
+pandas.DataFrame(data_dict).to_csv("data/words_to_learn.csv",index=False, encoding="utf-8", errors="ignore")
 
 def get_random_kanji():
     global random_row, timer_id, wrong_button
@@ -50,7 +50,7 @@ def known_word():
     global random_row, data_dict
     if random_row in data_dict:
         data_dict.remove(random_row)
-    pandas.DataFrame(data_dict).to_csv("data/words_to_learn.csv",index=False)
+    pandas.DataFrame(data_dict).to_csv("data/words_to_learn.csv",index=False, encoding="utf-8", errors="ignore")
     get_random_kanji()
 
 
